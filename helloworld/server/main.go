@@ -1,8 +1,9 @@
 package main
 
 import (
+	"context"
 	"google.golang.org/grpc"
-	pb "google.golang.org/grpc/examples/helloworld/helloworld"
+	pb "greet_grpc/helloworld/helloworld"
 	"log"
 	"net"
 )
@@ -16,8 +17,13 @@ type server struct {
 	pb.UnimplementedGreeterServer
 }
 
+// SayHello implements helloworld.GreeterServer
+func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
+	log.Printf("Received: %v", in.GetName())
+	return &pb.HelloReply{Message: "Hello " + in.GetName() + "!"}, nil
+}
+
 func main() {
-	//配置服务端监听接口
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -27,5 +33,4 @@ func main() {
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
-
 }
