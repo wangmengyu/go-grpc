@@ -29,25 +29,35 @@ service RouteGuide {
   //
   // A feature with an empty name is returned if there's no feature at the given
   // position.
+  // 简单rpc : 请求: 非流式 响应: 非流式,
+  //给一个指定的点. 获得指定点的特征.
   rpc GetFeature(Point) returns (Feature) {}
 
   // A server-to-client streaming RPC.
-  //
+  // 服务端流式RPC
   // Obtains the Features available within the given Rectangle.  Results are
+  // 得到一个方块区域内的特征列表.
+  // 客户端: 非流式的 方块坐标.
+  // 服务端: 流式, 特征流
   // streamed rather than returned at once (e.g. in a response message with a
   // repeated field), as the rectangle may cover a large area and contain a
   // huge number of features.
   rpc ListFeatures(Rectangle) returns (stream Feature) {}
 
   // A client-to-server streaming RPC.
-  //
+  // 客户端流式RPC
   // Accepts a stream of Points on a route being traversed, returning a
+  // 接收 一系列 点坐标, 返回 一个路线汇总
   // RouteSummary when traversal is completed.
   rpc RecordRoute(stream Point) returns (RouteSummary) {}
 
   // A Bidirectional streaming RPC.
-  //
+  // 双向流式RPC
+  // 接收一系列的备注信息流,
   // Accepts a stream of RouteNotes sent while a route is being traversed,
+  // 两个流独立操作
+  // 客户端, 服务端 任意喜欢的顺序读写,
+  // 例如: 服务端可以在写入响应钱等到接收所有的客户端消息, 也可以交替, 读一条处理一条.
   // while receiving other RouteNotes (e.g. from other users).
   rpc RouteChat(stream RouteNote) returns (stream RouteNote) {}
 }
@@ -105,8 +115,8 @@ message RouteSummary {
   int32 feature_count = 2;//特征的计算
 
   // The distance covered in metres.
-  int32 distance = 3;//
+  int32 distance = 3;//总长度
 
   // The duration of the traversal in seconds.
-  int32 elapsed_time = 4;
+  int32 elapsed_time = 4;//总时间
 }
